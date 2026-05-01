@@ -5,20 +5,20 @@ const path = require('path');
 // ─── Rink Configuration ────────────────────────────────────────────────────
 const RINKS = [
   {
-    id: 'snoking-kirkland',
-    name: 'Sno-King Kirkland',
-    location: 'Kirkland, WA',
+    id: 'snoking',
+    name: 'Sno-King Ice Arenas',
+    location: 'Kirkland / Renton / Snoqualmie, WA',
     color: '#1a6fc4',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3',
     type: 'daysmart',
   },
   // Add more rinks here:
   // {
-  //   id: 'snoking-renton',
-  //   name: 'Sno-King Renton',
-  //   location: 'Renton, WA',
+  //   id: 'my-rink',
+  //   name: 'My Rink',
+  //   location: 'City, WA',
   //   color: '#c41a1a',
-  //   url: 'https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3&facility=2',
+  //   url: 'https://...',
   //   type: 'daysmart',
   // },
 ];
@@ -27,156 +27,116 @@ const RINKS = [
 async function scrapeDaySmart(page, rink) {
   console.log(`\n  Scraping ${rink.name}...`);
 
-  // Capture all API JSON responses while the page loads
-  const apiData = [];
-  page.on('response', async (response) => {
-    const url = response.url();
-    const ct = response.headers()['content-type'] || '';
-    if (ct.includes('json') && response.status() === 200) {
-      try {
-        const json = await response.json();
-        apiData.push({ url, json });
-        console.log(`    [XHR] ${url}`);
-      } catch {}
-    }
-  });
-
-  // Navigate and wait for the page to fully settle
   await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
-
-  // Extra wait for Angular/React to finish rendering
   await page.waitForTimeout(5000);
 
-  console.log(`    Captured ${apiData.length} JSON API response(s)`);
-
-  // ── Try API interception first ──
-  const sessions = [];
-  for (const { url, json } of apiData) {
-    const extracted = extractDaySmartEvents(json, rink);
-    if (extracted.length > 0) {
-      console.log(`    ✓ Extracted ${extracted.length} sessions from: ${url}`);
-      sessions.push(...extracted);
-    }
+  // Wait for event cards to appear
+  try {
+    await page.waitForSelector('.card.w-100.mb-3', { timeout: 10000 });
+  } catch (e) {
+    console.log('  Warning: timed out waiting for cards, trying anyway...');
   }
 
-  if (sessions.length > 0) return sessions;
-
-  // ── Fallback: parse rendered DOM ──
-  console.log('    No sessions from API, scraping rendered DOM...');
-
-  // Dump a snapshot of the page HTML for debugging
-  const html = await page.content();
-  const debugPath = path.join(__dirname, '..', 'docs', `debug-${rink.id}.html`);
-  fs.writeFileSync(debugPath, html);
-  console.log(`    [debug] Wrote rendered HTML to ${debugPath}`);
-
-  // Grab all visible text nodes that look like times/events
-  const domSessions = await page.evaluate(() => {
+  const sessions = await page.evaluate(() => {
     const results = [];
 
-    // DaySmart renders event rows — try a broad set of selectors
-    const selectors = [
-      '[class*="event"]',
-      '[class*="session"]',
-      '[class*="program"]',
-      '[class*="schedule"]',
-      '[class*="activity"]',
-      'tr',
-      'li',
-    ];
+    // Each event is a card with class "card w-100 mx-0 mb-3"
+    const cards = document.querySelectorAll('.card.w-100.mb-3');
+    console.log(`Found ${cards.length} cards`);
 
-    let cards = [];
-    for (const sel of selectors) {
-      const found = [...document.querySelectorAll(sel)].filter(el => {
-        const t = el.innerText || '';
-        return /\d{1,2}:\d{2}\s*(am|pm)/i.test(t) && t.length < 500;
-      });
-      if (found.length > 0) {
-        cards = found;
-        break;
+    cards.forEach(card => {
+      try {
+        // Title: h6 containing "May 1 - Public Skate" etc
+        const titleEl = card.querySelector('h6.flex-grow-1');
+        const title = titleEl ? titleEl.innerText.trim() : '';
+
+        // Time: first div inside card-body that has "am" or "pm"
+        // It's the div directly containing "9:30am - 11:00am"
+        let startTime = null, endTime = null;
+        const allDivs = card.querySelectorAll('.card-body > div');
+        for (const div of allDivs) {
+          const text = div.innerText || '';
+          if (/\d{1,2}:\d{2}(am|pm)/i.test(text) && text.length < 60) {
+            // Extract start and end times
+            const times = text.match(/\d{1,2}:\d{2}[ap]m/gi);
+            if (times && times.length >= 1) {
+              startTime = times[0];
+              endTime = times[1] || null;
+            }
+            break;
+          }
+        }
+
+        // Location: div containing fa-map-marker-alt
+        const locationEl = card.querySelector('.fa-map-marker-alt');
+        const location = locationEl
+          ? locationEl.parentElement.innerText.replace(/\s+/g, ' ').trim()
+          : null;
+
+        // Price: dash-product-price
+        const priceEl = card.querySelector('dash-product-price');
+        const priceText = priceEl ? priceEl.innerText.trim() : null;
+        const price = priceText ? parseFloat(priceText.replace(/[^0-9.]/g, '')) : null;
+
+        // Registered count: "7/400 Registered"
+        const registeredEl = [...card.querySelectorAll('span')].find(
+          el => el.innerText && /registered/i.test(el.innerText)
+        );
+        let registered = null, capacity = null;
+        if (registeredEl) {
+          const match = registeredEl.innerText.match(/(\d+)\s*\/\s*(\d+)/);
+          if (match) {
+            registered = parseInt(match[1]);
+            capacity = parseInt(match[2]);
+          }
+        }
+
+        // Parse date from title (e.g. "May 1 - Public Skate")
+        let date = null;
+        const dateMatch = title.match(/([A-Za-z]+)\s+(\d+)/);
+        if (dateMatch) {
+          date = `${dateMatch[1]} ${dateMatch[2]} 2026`; // assumes current year
+        }
+
+        // Build ISO-like start/end strings
+        const parseTime = (dateStr, timeStr) => {
+          if (!dateStr || !timeStr) return null;
+          try {
+            return new Date(`${dateStr} ${timeStr}`).toISOString();
+          } catch {
+            return `${dateStr} ${timeStr}`;
+          }
+        };
+
+        if (title && startTime) {
+          results.push({
+            name: title.replace(/^[A-Za-z]+ \d+\s*-\s*/, '').trim() || title,
+            date,
+            start: parseTime(date, startTime),
+            end: parseTime(date, endTime),
+            startRaw: startTime,
+            endRaw: endTime,
+            location: location ? location.replace('Sno-King Ice Arenas - ', '') : null,
+            price: isNaN(price) ? null : price,
+            registered,
+            capacity,
+            spotsRemaining: (capacity && registered !== null) ? capacity - registered : null,
+          });
+        }
+      } catch (err) {
+        console.error('Error parsing card:', err.message);
       }
-    }
-
-    for (const card of cards) {
-      const text = (card.innerText || '').trim();
-      const timeMatches = text.match(/\d{1,2}:\d{2}\s*(AM|PM)/gi) || [];
-      const dateMatch = text.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s*\d{4}/i)
-        || text.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/);
-
-      results.push({
-        text,
-        times: timeMatches,
-        date: dateMatch ? dateMatch[0] : null,
-      });
-    }
+    });
 
     return results;
   });
 
-  console.log(`    Found ${domSessions.length} DOM element(s) with times`);
-
-  for (const item of domSessions) {
-    const [startTime, endTime] = item.times;
-    sessions.push({
-      rinkId: rink.id,
-      name: 'Public Skate',
-      start: [item.date, startTime].filter(Boolean).join(' '),
-      end: endTime ? [item.date, endTime].filter(Boolean).join(' ') : null,
-      location: rink.name,
-      price: null,
-      spotsRemaining: null,
-      raw: { text: item.text },
-    });
+  console.log(`  ✓ Found ${sessions.length} sessions`);
+  if (sessions.length > 0) {
+    console.log(`    Sample: ${sessions[0].name} @ ${sessions[0].startRaw} — ${sessions[0].location}`);
   }
 
-  return sessions;
-}
-
-// ─── Parse DaySmart API response shapes ────────────────────────────────────
-function extractDaySmartEvents(json, rink) {
-  const sessions = [];
-
-  const candidates = [
-    json?.data,
-    json?.events,
-    json?.sessions,
-    json?.results,
-    json?.items,
-    Array.isArray(json) ? json : null,
-  ].filter(Array.isArray);
-
-  for (const list of candidates) {
-    for (const item of list) {
-      const session = parseDaySmartItem(item, rink);
-      if (session) sessions.push(session);
-    }
-    if (sessions.length > 0) break;
-  }
-
-  return sessions;
-}
-
-function parseDaySmartItem(item, rink) {
-  if (typeof item !== 'object' || !item) return null;
-
-  const name = item.name || item.title || item.event_name || item.program_name || '';
-  const start = item.start_date || item.start || item.date_start || item.begins || item.startTime || '';
-  const end = item.end_date || item.end || item.date_end || item.ends || item.endTime || '';
-  const location = item.facility_name || item.location || item.rink || '';
-  const price = item.price ?? item.cost ?? item.amount ?? null;
-  const spots = item.spots_remaining ?? item.available_spots ?? item.openSpots ?? null;
-
-  if (!start) return null;
-
-  return {
-    rinkId: rink.id,
-    name: name || 'Public Skate',
-    start,
-    end: end || null,
-    location: location || rink.name,
-    price: price !== null ? parseFloat(price) : null,
-    spotsRemaining: spots !== null ? parseInt(spots) : null,
-  };
+  return sessions.map(s => ({ ...s, rinkId: rink.id }));
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
@@ -191,9 +151,7 @@ async function main() {
 
   for (const rink of RINKS) {
     const page = await browser.newPage();
-
-    // Block images/fonts/media to speed things up
-    await page.route('**/*.{png,jpg,jpeg,gif,webp,svg,woff,woff2,ttf,mp4,mp3}', r => r.abort());
+    await page.route('**/*.{png,jpg,jpeg,gif,webp,woff,woff2,ttf,mp4,mp3}', r => r.abort());
 
     const rinkOutput = {
       id: rink.id,
@@ -206,12 +164,10 @@ async function main() {
     };
 
     try {
-      const sessions = await scrapeDaySmart(page, rink);
-      rinkOutput.sessions = sessions;
-      console.log(`\n  ✓ ${rink.name}: ${sessions.length} session(s)\n`);
+      rinkOutput.sessions = await scrapeDaySmart(page, rink);
     } catch (err) {
       rinkOutput.error = err.message;
-      console.error(`\n  ✗ ${rink.name} failed: ${err.message}\n`);
+      console.error(`  ✗ ${rink.name} failed: ${err.message}`);
     }
 
     output.rinks.push(rinkOutput);
@@ -223,9 +179,8 @@ async function main() {
   const outPath = path.join(__dirname, '..', 'docs', 'schedule.json');
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
 
-  console.log(`\n✅ Done`);
+  console.log(`\n✅ Done — ${output.rinks.reduce((n, r) => n + r.sessions.length, 0)} total sessions`);
   console.log(`   Wrote: ${outPath}`);
-  console.log(`   Total sessions: ${output.rinks.reduce((n, r) => n + r.sessions.length, 0)}`);
 }
 
 main().catch(err => {
