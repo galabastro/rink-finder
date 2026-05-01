@@ -2,8 +2,8 @@ name: Scrape Skate Times
 
 on:
   schedule:
-    # Runs every 6 hours
-    - cron: '0 */6 * * *'
+    # Runs every hour
+    - cron: '0 * * * *'
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 permissions:

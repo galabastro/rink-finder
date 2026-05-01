@@ -705,6 +705,7 @@ function render() {
       const startFmt = fmt12(session.start);
       const endFmt = session.end ? fmt12(session.end) : null;
       const price = session.price != null ? `$${session.price.toFixed(2)}` : null;
+      const registered = session.registered;
       const spots = session.spotsRemaining;
       const spotsClass = spots != null && spots < 5 ? 'card-spots spots-low' : 'card-spots';
 
@@ -722,7 +723,8 @@ function render() {
         </div>
         <div class="card-meta">
           ${price ? `<span class="card-price">${price}</span>` : ''}
-          ${spots != null ? `<span class="${spotsClass}">${spots} spots</span>` : ''}
+          ${registered != null ? `<span class="card-spots">${registered} signed up</span>` : ''}
+          ${spots != null && spots < 10 ? `<span class="${spotsClass}">${spots} left</span>` : ''}
         </div>
       `;
 
