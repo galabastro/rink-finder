@@ -19,7 +19,6 @@ const RINKS = [
     color: '#32b5b5',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
     type: 'daysmart',
-    dateRange: 7, // scrape next 7 days — page needs ?date= to show specific instances
   },
 ];
 
@@ -30,7 +29,6 @@ async function scrapeDaySmart(page, rink) {
   await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
   await page.waitForTimeout(5000);
 
-  // Wait for event cards to appear
   try {
     await page.waitForSelector('.card.w-100.mb-3', { timeout: 10000 });
   } catch (e) {
@@ -40,24 +38,19 @@ async function scrapeDaySmart(page, rink) {
   const sessions = await page.evaluate((rinkName) => {
     const results = [];
 
-    // Each event is a card with class "card w-100 mx-0 mb-3"
     const cards = document.querySelectorAll('.card.w-100.mb-3');
     console.log(`Found ${cards.length} cards`);
 
     cards.forEach(card => {
       try {
-        // Title: h6 containing "May 1 - Public Skate" etc
         const titleEl = card.querySelector('h6.flex-grow-1');
         const title = titleEl ? titleEl.innerText.trim() : '';
 
-        // Time: first div inside card-body that has "am" or "pm"
-        // It's the div directly containing "9:30am - 11:00am"
         let startTime = null, endTime = null;
         const allDivs = card.querySelectorAll('.card-body > div');
         for (const div of allDivs) {
           const text = div.innerText || '';
           if (/\d{1,2}:\d{2}(am|pm)/i.test(text) && text.length < 60) {
-            // Extract start and end times
             const times = text.match(/\d{1,2}:\d{2}[ap]m/gi);
             if (times && times.length >= 1) {
               startTime = times[0];
@@ -67,18 +60,15 @@ async function scrapeDaySmart(page, rink) {
           }
         }
 
-        // Location: div containing fa-map-marker-alt
         const locationEl = card.querySelector('.fa-map-marker-alt');
         const location = locationEl
           ? locationEl.parentElement.innerText.replace(/\s+/g, ' ').trim()
           : null;
 
-        // Price: dash-product-price
         const priceEl = card.querySelector('dash-product-price');
         const priceText = priceEl ? priceEl.innerText.trim() : null;
         const price = priceText ? parseFloat(priceText.replace(/[^0-9.]/g, '')) : null;
 
-        // Registered count: "7/400 Registered"
         const registeredEl = [...card.querySelectorAll('span')].find(
           el => el.innerText && /registered/i.test(el.innerText)
         );
@@ -91,21 +81,17 @@ async function scrapeDaySmart(page, rink) {
           }
         }
 
-        // Parse date from title (e.g. "May 1 - Public Skate")
+        // Parse date from title ("May 1 - Public Skate"); null if not present
         let date = null;
         const dateMatch = title.match(/([A-Za-z]+)\s+(\d+)/);
         if (dateMatch) {
-          date = `${dateMatch[1]} ${dateMatch[2]} 2026`; // assumes current year
+          date = `${dateMatch[1]} ${dateMatch[2]} 2026`;
         }
 
-        // Build ISO-like start/end strings
         const parseTime = (dateStr, timeStr) => {
           if (!dateStr || !timeStr) return null;
-          try {
-            return new Date(`${dateStr} ${timeStr}`).toISOString();
-          } catch {
-            return `${dateStr} ${timeStr}`;
-          }
+          try { return new Date(`${dateStr} ${timeStr}`).toISOString(); }
+          catch { return `${dateStr} ${timeStr}`; }
         };
 
         if (title && startTime) {
@@ -164,18 +150,7 @@ async function main() {
     };
 
     try {
-      if (rink.dateRange) {
-        for (let i = 0; i < rink.dateRange; i++) {
-          const d = new Date();
-          d.setDate(d.getDate() + i);
-          const dateStr = d.toISOString().split('T')[0];
-          const urlWithDate = rink.url + `&date=${dateStr}`;
-          const daySessions = await scrapeDaySmart(page, { ...rink, url: urlWithDate });
-          rinkOutput.sessions.push(...daySessions);
-        }
-      } else {
-        rinkOutput.sessions = await scrapeDaySmart(page, rink);
-      }
+      rinkOutput.sessions = await scrapeDaySmart(page, rink);
     } catch (err) {
       rinkOutput.error = err.message;
       console.error(`  ✗ ${rink.name} failed: ${err.message}`);
