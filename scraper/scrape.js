@@ -12,15 +12,14 @@ const RINKS = [
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3',
     type: 'daysmart',
   },
-  // Add more rinks here:
-  // {
-  //   id: 'my-rink',
-  //   name: 'My Rink',
-  //   location: 'City, WA',
-  //   color: '#c41a1a',
-  //   url: 'https://...',
-  //   type: 'daysmart',
-  // },
+  {
+    id: 'kraken',
+    name: 'Kraken Community Iceplex',
+    location: 'Seattle, WA',
+    color: '#32b5b5',
+    url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
+    type: 'daysmart',
+  },
 ];
 
 // ─── DaySmart Scraper ──────────────────────────────────────────────────────
@@ -37,7 +36,7 @@ async function scrapeDaySmart(page, rink) {
     console.log('  Warning: timed out waiting for cards, trying anyway...');
   }
 
-  const sessions = await page.evaluate(() => {
+  const sessions = await page.evaluate((rinkName) => {
     const results = [];
 
     // Each event is a card with class "card w-100 mx-0 mb-3"
@@ -116,7 +115,7 @@ async function scrapeDaySmart(page, rink) {
             end: parseTime(date, endTime),
             startRaw: startTime,
             endRaw: endTime,
-            location: location ? location.replace('Sno-King Ice Arenas - ', '') : null,
+            location: location ? location.replace(rinkName + ' - ', '').trim() : null,
             price: isNaN(price) ? null : price,
             registered,
             capacity,
@@ -129,7 +128,7 @@ async function scrapeDaySmart(page, rink) {
     });
 
     return results;
-  });
+  }, rink.name);
 
   console.log(`  ✓ Found ${sessions.length} sessions`);
   if (sessions.length > 0) {
