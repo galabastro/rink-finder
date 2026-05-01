@@ -802,7 +802,7 @@ function render() {
       <div class="card-info">
         <div class="card-session-name">${session.name || 'Public Skate'}</div>
         ${isLive ? '<div class="live-badge"><span class="live-dot"></span>In Progress</div>' : ''}
-        ${session.partyWarning ? `<div class="party-badge">⚠ ${+session.partyWarning > 1 ? session.partyWarning + ' parties' : 'party'} nearby</div>` : ''}
+        ${session.partyWarning ? '<div class="party-badge">⚠ Party nearby</div>' : ''}
         <div class="card-rink">
           <span class="rink-dot" style="background:${rink.color}"></span>
           ${rink.name}${session.location ? ` · ${session.location}` : ''}
