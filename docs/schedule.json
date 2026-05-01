@@ -1,0 +1,14 @@
+{
+  "scrapedAt": "2026-05-01T20:35:01.988Z",
+  "rinks": [
+    {
+      "id": "snoking-kirkland",
+      "name": "Sno-King Kirkland",
+      "location": "Kirkland, WA",
+      "color": "#1a6fc4",
+      "url": "https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3",
+      "sessions": [],
+      "error": null
+    }
+  ]
+}
