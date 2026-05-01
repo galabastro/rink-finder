@@ -237,6 +237,7 @@
     .session-card {
       background: var(--deep-2);
       border: 1px solid rgba(91,200,245,0.1);
+      border-left-width: 3px;
       border-radius: var(--radius);
       padding: 1.25rem 1.5rem;
       display: grid;
@@ -372,8 +373,10 @@
       align-items: center;
       gap: 0.75rem;
       margin: 2rem 0 0.75rem;
-      padding-bottom: 0.5rem;
+      padding: 0.4rem 0.75rem 0.4rem 0.6rem;
       border-bottom: 1px solid rgba(91,200,245,0.08);
+      border-left: 3px solid transparent;
+      border-radius: 4px;
     }
 
     .rink-header:first-child { margin-top: 0; }
@@ -450,6 +453,36 @@
     footer a {
       color: var(--accent);
       text-decoration: none;
+    }
+
+    /* ── Past / live session states ── */
+    .session-card.session-past {
+      opacity: 0.4;
+      filter: grayscale(0.6);
+    }
+
+    .session-card.session-live {
+      box-shadow: 0 0 0 1px rgba(240,193,66,0.3);
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f0c142;
+      margin-top: 0.15rem;
+    }
+
+    .live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #f0c142;
+      flex-shrink: 0;
+      animation: pulse 1.5s ease-in-out infinite;
     }
 
     /* ── Loading skeleton ── */
@@ -564,6 +597,21 @@ function fmt12(timeStr) {
   } catch { return timeStr; }
 }
 
+function parseSessionDateTime(str) {
+  if (!str) return null;
+  const d = new Date(str);
+  if (!isNaN(d)) return d;
+  const m = str.match(/^(\w+)\s+(\d+)\s+(\d{4})\s+(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+  if (!m) return null;
+  const month = MONTH_NAMES.indexOf(m[1].slice(0, 3));
+  if (month === -1) return null;
+  let h = parseInt(m[4]);
+  const isPm = m[6].toLowerCase() === 'pm';
+  if (isPm && h !== 12) h += 12;
+  if (!isPm && h === 12) h = 0;
+  return new Date(parseInt(m[3]), month, parseInt(m[2]), h, parseInt(m[5]));
+}
+
 function sessionDate(session) {
   // Returns "YYYY-MM-DD". Prefers session.date ("May 1 2026") to avoid cross-browser
   // parse issues with non-ISO start strings like "May 1 2026 9:30am".
@@ -652,6 +700,7 @@ function render() {
     // Rink header
     const header = document.createElement('div');
     header.className = 'rink-header';
+    header.style.borderLeftColor = rink.color;
     header.innerHTML = `
       <span class="rink-header-dot" style="background:${rink.color}"></span>
       <span class="rink-header-name">${rink.name}</span>
@@ -697,10 +746,17 @@ function render() {
     };
     sessions.sort((a, b) => toMins(a) - toMins(b));
 
+    const now = new Date();
     for (const [i, session] of sessions.entries()) {
+      const startDt = parseSessionDateTime(session.start);
+      const endDt = parseSessionDateTime(session.end);
+      const isPast = endDt ? endDt < now : (startDt ? startDt < now : false);
+      const isLive = startDt && endDt && startDt <= now && endDt > now;
+
       const card = document.createElement('div');
-      card.className = 'session-card';
+      card.className = 'session-card' + (isPast ? ' session-past' : '') + (isLive ? ' session-live' : '');
       card.style.animationDelay = `${i * 40}ms`;
+      card.style.borderLeftColor = isLive ? '#f0c142' : rink.color;
 
       const startFmt = fmt12(session.start);
       const endFmt = session.end ? fmt12(session.end) : null;
@@ -716,6 +772,7 @@ function render() {
         </div>
         <div class="card-info">
           <div class="card-session-name">${session.name || 'Public Skate'}</div>
+          ${isLive ? '<div class="live-badge"><span class="live-dot"></span>In Progress</div>' : ''}
           <div class="card-rink">
             <span class="rink-dot" style="background:${rink.color}"></span>
             ${rink.name}${session.location ? ` · ${session.location}` : ''}
