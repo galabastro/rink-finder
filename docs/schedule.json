@@ -1,13 +1,98 @@
 {
-  "scrapedAt": "2026-05-01T20:47:01.344Z",
+  "scrapedAt": "2026-05-01T20:52:04.007Z",
   "rinks": [
     {
-      "id": "snoking-kirkland",
-      "name": "Sno-King Kirkland",
-      "location": "Kirkland, WA",
+      "id": "snoking",
+      "name": "Sno-King Ice Arenas",
+      "location": "Kirkland / Renton / Snoqualmie, WA",
       "color": "#1a6fc4",
       "url": "https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3",
-      "sessions": [],
+      "sessions": [
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 9:30am",
+          "end": "May 1 2026 11:00am",
+          "startRaw": "9:30am",
+          "endRaw": "11:00am",
+          "location": "Renton",
+          "price": 15,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 10:30am",
+          "end": "May 1 2026 12:30pm",
+          "startRaw": "10:30am",
+          "endRaw": "12:30pm",
+          "location": "Snoqualmie",
+          "price": 15,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 11:00am",
+          "end": "May 1 2026 12:30pm",
+          "startRaw": "11:00am",
+          "endRaw": "12:30pm",
+          "location": "Renton",
+          "price": 15,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 12:30pm",
+          "end": "May 1 2026 2:00pm",
+          "startRaw": "12:30pm",
+          "endRaw": "2:00pm",
+          "location": "Renton",
+          "price": 15,
+          "registered": 7,
+          "capacity": 400,
+          "spotsRemaining": 393,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 7:15pm",
+          "end": "May 1 2026 8:15pm",
+          "startRaw": "7:15pm",
+          "endRaw": "8:15pm",
+          "location": "Kirkland",
+          "price": 15,
+          "registered": 3,
+          "capacity": 400,
+          "spotsRemaining": 397,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 1 2026",
+          "start": "May 1 2026 7:00pm",
+          "end": "May 1 2026 8:30pm",
+          "startRaw": "7:00pm",
+          "endRaw": "8:30pm",
+          "location": "Renton",
+          "price": 15,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
+          "rinkId": "snoking"
+        }
+      ],
       "error": null
     }
   ]
