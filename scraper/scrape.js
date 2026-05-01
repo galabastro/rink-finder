@@ -1,5 +1,7 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
+const https = require('https');
+const http = require('http');
 const path = require('path');
 
 // ─── Rink Configuration ────────────────────────────────────────────────────
@@ -12,6 +14,9 @@ const RINKS = [
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3',
     slideNav: 7,
     type: 'daysmart',
+    partyCalendars: [
+      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=3', location: 'Snoqualmie' },
+    ],
   },
   {
     id: 'kraken',
@@ -224,6 +229,93 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
   return allSessions;
 }
 
+// ─── Party rental calendar ────────────────────────────────────────────────
+
+function fetchText(url) {
+  return new Promise((resolve, reject) => {
+    const mod = url.startsWith('https') ? https : http;
+    mod.get(url, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+// Parse iCal text → array of { date, startMin, endMin, location } for Party Room Rental events.
+function parsePartyRentals(ical) {
+  const rentals = [];
+  const blocks = ical.split('BEGIN:VEVENT');
+  for (const block of blocks.slice(1)) {
+    const get = key => { const m = block.match(new RegExp(`${key}[^:]*:([^\r\n]+)`)); return m ? m[1].trim() : ''; };
+    if (!/party room rental/i.test(get('SUMMARY'))) continue;
+    const dtstart = get('DTSTART');
+    const dtend   = get('DTEND');
+    if (!dtstart || !dtend) continue;
+    const toMin = s => parseInt(s.slice(9, 11), 10) * 60 + parseInt(s.slice(11, 13), 10);
+    rentals.push({
+      date:     dtstart.slice(0, 8),        // "YYYYMMDD"
+      startMin: toMin(dtstart),
+      endMin:   toMin(dtend),
+      location: get('LOCATION'),
+    });
+  }
+  return rentals;
+}
+
+// For each session, set partyWarning:true if a rental at the same location
+// falls within 1 hour before or after the session window.
+async function tagPartyWarnings(sessions, partyCalendars) {
+  for (const cal of partyCalendars) {
+    let rentals;
+    try {
+      const text = await fetchText(cal.url);
+      rentals = parsePartyRentals(text);
+      console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found`);
+    } catch (err) {
+      console.error(`  Warning: could not fetch party calendar for ${cal.location}: ${err.message}`);
+      continue;
+    }
+
+    for (const s of sessions) {
+      if (!s.location || !s.location.includes(cal.location)) continue;
+      // Parse "May 2 2026 4:30pm" → YYYYMMDD + minutes
+      const startDt = parseSessionDateTime(s.start);
+      const endDt   = parseSessionDateTime(s.end);
+      if (!startDt || !endDt) continue;
+      const sessionDate = `${startDt.getFullYear()}${String(startDt.getMonth()+1).padStart(2,'0')}${String(startDt.getDate()).padStart(2,'0')}`;
+      const sessionStartMin = startDt.getHours() * 60 + startDt.getMinutes();
+      const sessionEndMin   = endDt.getHours()   * 60 + endDt.getMinutes();
+
+      for (const r of rentals) {
+        if (r.date !== sessionDate) continue;
+        if (r.startMin < sessionEndMin + 60 && r.endMin > sessionStartMin - 60) {
+          s.partyWarning = true;
+          break;
+        }
+      }
+    }
+  }
+}
+
+// Parse "May 2 2026 4:30pm" or ISO strings → Date (local time interpretation).
+function parseSessionDateTime(str) {
+  if (!str) return null;
+  try {
+    // Already ISO
+    if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return new Date(str);
+    // "May 2 2026 4:30pm"
+    const m = str.match(/([A-Za-z]+)\s+(\d+)\s+(\d{4})\s+(\d{1,2}):(\d{2})(am|pm)/i);
+    if (!m) return null;
+    const MONTHS_MAP = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    const mo = MONTHS_MAP[m[1].toLowerCase().slice(0,3)];
+    let hr = parseInt(m[4]);
+    if (m[6].toLowerCase() === 'pm' && hr !== 12) hr += 12;
+    if (m[6].toLowerCase() === 'am' && hr === 12) hr = 0;
+    return new Date(parseInt(m[3]), mo, parseInt(m[2]), hr, parseInt(m[5]));
+  } catch { return null; }
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────
 async function main() {
   console.log('⛸  Starting ice skate time scraper...');
@@ -249,6 +341,10 @@ async function main() {
     } catch (err) {
       rinkOutput.error = err.message;
       console.error(`  ✗ ${rink.name} failed: ${err.message}`);
+    }
+
+    if (rink.partyCalendars && rinkOutput.sessions.length > 0) {
+      await tagPartyWarnings(rinkOutput.sessions, rink.partyCalendars);
     }
 
     output.rinks.push(rinkOutput);
