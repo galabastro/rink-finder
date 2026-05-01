@@ -1,0 +1,11 @@
+{
+  "name": "skate-times-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes public skate times from local rink booking systems",
+  "scripts": {
+    "scrape": "node scraper/scrape.js"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}
