@@ -18,48 +18,75 @@ const RINKS = [
     location: 'Seattle, WA',
     color: '#32b5b5',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
-    // Page shows sessions for a specific date but never writes the date into the
-    // card DOM — must be injected from the URL parameter after scraping.
-    dateUrl: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?date={DATE}&&sport_ids=30',
-    dateRange: 7,
+    // URL date param is ignored by the SPA. Instead, click "Next slide" to
+    // advance the carousel day-by-day. Session names encode the day of week.
+    slideNav: 7,
     type: 'daysmart',
   },
 ];
 
-// ─── DaySmart Scraper ──────────────────────────────────────────────────────
-async function scrapeDaySmart(page, rink) {
-  console.log(`\n  Scraping ${rink.name}...`);
+// ─── Day-of-week helpers ───────────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
-  await page.waitForTimeout(5000);
+const NAME_TO_DOW = [
+  [/\bsunday(s)?\b/i,    0],
+  [/\bmonday(s)?\b/i,    1],
+  [/\btuesday(s)?\b/i,   2],
+  [/\bwednesday(s)?\b/i, 3],
+  [/\bthursday(s)?\b/i,  4],
+  [/\bfriday(s)?\b/i,    5],
+  [/\bsaturday(s)?\b/i,  6],
+];
 
-  try {
-    await page.waitForSelector('.card.w-100.mb-3', { timeout: 10000 });
-  } catch (e) {
-    console.log('  Warning: timed out waiting for cards, trying anyway...');
+// Return the next date (from `base`, inclusive) that falls on `targetDow`.
+function nextDate(targetDow, base) {
+  const d = new Date(base);
+  d.setHours(0, 0, 0, 0);
+  const diff = (targetDow - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+// Infer the calendar date for a slide's sessions from their names.
+// Returns the earliest matching date from today onward.
+function inferSlideDate(sessions, fromDate) {
+  let earliest = null;
+  for (const s of sessions) {
+    const name = s.name || '';
+    for (const [re, dow] of NAME_TO_DOW) {
+      if (re.test(name)) {
+        const d = nextDate(dow, fromDate);
+        if (!earliest || d < earliest) earliest = d;
+        break;
+      }
+    }
+    // "M-F only" → next weekday
+    if (/\bm-f\b/i.test(name)) {
+      const d = new Date(fromDate);
+      d.setHours(0, 0, 0, 0);
+      if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+      if (d.getDay() === 6) d.setDate(d.getDate() + 2);
+      if (!earliest || d < earliest) earliest = d;
+    }
   }
+  return earliest || new Date(fromDate);
+}
 
-  const sessions = await page.evaluate((rinkName) => {
+// ─── Extract cards from the current page state ────────────────────────────
+async function extractCards(page, rinkName) {
+  return page.evaluate((rinkName) => {
     const results = [];
-
-    const cards = document.querySelectorAll('.card.w-100.mb-3');
-    console.log(`Found ${cards.length} cards`);
-
-    cards.forEach(card => {
+    document.querySelectorAll('.card.w-100.mb-3').forEach(card => {
       try {
         const titleEl = card.querySelector('h6.flex-grow-1');
         const title = titleEl ? titleEl.innerText.trim() : '';
 
         let startTime = null, endTime = null;
-        const allDivs = card.querySelectorAll('.card-body > div');
-        for (const div of allDivs) {
+        for (const div of card.querySelectorAll('.card-body > div')) {
           const text = div.innerText || '';
           if (/\d{1,2}:\d{2}(am|pm)/i.test(text) && text.length < 60) {
             const times = text.match(/\d{1,2}:\d{2}[ap]m/gi);
-            if (times && times.length >= 1) {
-              startTime = times[0];
-              endTime = times[1] || null;
-            }
+            if (times?.length >= 1) { startTime = times[0]; endTime = times[1] || null; }
             break;
           }
         }
@@ -73,24 +100,18 @@ async function scrapeDaySmart(page, rink) {
         const priceText = priceEl ? priceEl.innerText.trim() : null;
         const price = priceText ? parseFloat(priceText.replace(/[^0-9.]/g, '')) : null;
 
-        const registeredEl = [...card.querySelectorAll('span')].find(
-          el => el.innerText && /registered/i.test(el.innerText)
-        );
+        const registeredEl = [...card.querySelectorAll('span')]
+          .find(el => el.innerText && /registered/i.test(el.innerText));
         let registered = null, capacity = null;
         if (registeredEl) {
-          const match = registeredEl.innerText.match(/(\d+)\s*\/\s*(\d+)/);
-          if (match) {
-            registered = parseInt(match[1]);
-            capacity = parseInt(match[2]);
-          }
+          const m = registeredEl.innerText.match(/(\d+)\s*\/\s*(\d+)/);
+          if (m) { registered = parseInt(m[1]); capacity = parseInt(m[2]); }
         }
 
-        // Parse date from title ("May 1 - Public Skate"); null if not present
+        // Sno-King embeds the date in the title ("May 1 - Public Skate")
         let date = null;
-        const dateMatch = title.match(/([A-Za-z]+)\s+(\d+)/);
-        if (dateMatch) {
-          date = `${dateMatch[1]} ${dateMatch[2]} 2026`;
-        }
+        const dateMatch = title.match(/([A-Za-z]+)\s+(\d+)\s+-/);
+        if (dateMatch) date = `${dateMatch[1]} ${dateMatch[2]} 2026`;
 
         const parseTime = (dateStr, timeStr) => {
           if (!dateStr || !timeStr) return null;
@@ -113,20 +134,75 @@ async function scrapeDaySmart(page, rink) {
             spotsRemaining: (capacity && registered !== null) ? capacity - registered : null,
           });
         }
-      } catch (err) {
-        console.error('Error parsing card:', err.message);
-      }
+      } catch (err) { console.error('Card parse error:', err.message); }
     });
-
     return results;
-  }, rink.name);
+  }, rinkName);
+}
 
+// ─── DaySmart Scraper ──────────────────────────────────────────────────────
+async function scrapeDaySmart(page, rink) {
+  console.log(`\n  Scraping ${rink.name}...`);
+  await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
+  await page.waitForTimeout(5000);
+  try { await page.waitForSelector('.card.w-100.mb-3', { timeout: 10000 }); }
+  catch { console.log('  Warning: timed out waiting for cards, trying anyway...'); }
+
+  const sessions = await extractCards(page, rink.name);
   console.log(`  ✓ Found ${sessions.length} sessions`);
-  if (sessions.length > 0) {
-    console.log(`    Sample: ${sessions[0].name} @ ${sessions[0].startRaw} — ${sessions[0].location}`);
+  return sessions.map(s => ({ ...s, rinkId: rink.id }));
+}
+
+// ─── DaySmart slide-nav scraper (Kraken) ──────────────────────────────────
+async function scrapeDaySmartSlideNav(page, rink, numDays) {
+  console.log(`\n  Scraping ${rink.name} via slide nav (${numDays} days)...`);
+  await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
+  await page.waitForTimeout(5000);
+  try { await page.waitForSelector('.card.w-100.mb-3', { timeout: 10000 }); }
+  catch { console.log('  Warning: no cards found on initial load'); }
+
+  const allSessions = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let slideDate = null;
+
+  for (let i = 0; i < numDays; i++) {
+    const raw = await extractCards(page, rink.name);
+    console.log(`  Slide ${i}: ${raw.length} cards`);
+
+    if (i === 0) {
+      // Determine which day slide 0 represents from session names
+      slideDate = inferSlideDate(raw, today);
+      console.log(`  Slide 0 date inferred: ${MONTHS[slideDate.getMonth()]} ${slideDate.getDate()} ${slideDate.getFullYear()}`);
+    }
+
+    if (raw.length > 0 && slideDate) {
+      const dateLabel = `${MONTHS[slideDate.getMonth()]} ${slideDate.getDate()} ${slideDate.getFullYear()}`;
+      for (const s of raw) {
+        allSessions.push({
+          ...s,
+          rinkId: rink.id,
+          date: s.date || dateLabel,
+          start: s.start || (s.startRaw ? `${dateLabel} ${s.startRaw}` : null),
+          end:   s.end   || (s.endRaw   ? `${dateLabel} ${s.endRaw}`   : null),
+        });
+      }
+    }
+
+    if (i < numDays - 1) {
+      try {
+        await page.click('button[aria-label="Next slide"]');
+        await page.waitForTimeout(2500);
+        if (slideDate) slideDate = new Date(slideDate.getTime() + 86400000); // +1 day
+      } catch {
+        console.log('  No Next slide button — stopping early');
+        break;
+      }
+    }
   }
 
-  return sessions.map(s => ({ ...s, rinkId: rink.id }));
+  console.log(`  ✓ Total Kraken sessions: ${allSessions.length}`);
+  return allSessions;
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
@@ -134,44 +210,20 @@ async function main() {
   console.log('⛸  Starting ice skate time scraper...');
 
   const browser = await chromium.launch({ headless: true });
-  const output = {
-    scrapedAt: new Date().toISOString(),
-    rinks: [],
-  };
+  const output = { scrapedAt: new Date().toISOString(), rinks: [] };
 
   for (const rink of RINKS) {
     const page = await browser.newPage();
     await page.route('**/*.{png,jpg,jpeg,gif,webp,woff,woff2,ttf,mp4,mp3}', r => r.abort());
 
     const rinkOutput = {
-      id: rink.id,
-      name: rink.name,
-      location: rink.location,
-      color: rink.color,
-      url: rink.url,
-      sessions: [],
-      error: null,
+      id: rink.id, name: rink.name, location: rink.location,
+      color: rink.color, url: rink.url, sessions: [], error: null,
     };
 
     try {
-      if (rink.dateRange) {
-        const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        for (let i = 0; i < rink.dateRange; i++) {
-          const d = new Date();
-          d.setDate(d.getDate() + i);
-          const dateStr = d.toISOString().split('T')[0];
-          const url = rink.dateUrl.replace('{DATE}', dateStr);
-          const daySessions = await scrapeDaySmart(page, { ...rink, url });
-          const dateLabel = `${MONTHS[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`;
-          for (const s of daySessions) {
-            rinkOutput.sessions.push(s.date ? s : {
-              ...s,
-              date: dateLabel,
-              start: s.startRaw ? `${dateLabel} ${s.startRaw}` : null,
-              end:   s.endRaw   ? `${dateLabel} ${s.endRaw}`   : null,
-            });
-          }
-        }
+      if (rink.slideNav) {
+        rinkOutput.sessions = await scrapeDaySmartSlideNav(page, rink, rink.slideNav);
       } else {
         rinkOutput.sessions = await scrapeDaySmart(page, rink);
       }
@@ -188,12 +240,8 @@ async function main() {
 
   const outPath = path.join(__dirname, '..', 'docs', 'schedule.json');
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
-
   console.log(`\n✅ Done — ${output.rinks.reduce((n, r) => n + r.sessions.length, 0)} total sessions`);
   console.log(`   Wrote: ${outPath}`);
 }
 
-main().catch(err => {
-  console.error('Fatal:', err);
-  process.exit(1);
-});
+main().catch(err => { console.error('Fatal:', err); process.exit(1); });
