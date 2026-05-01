@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-01T22:46:56.053Z",
+  "scrapedAt": "2026-05-01T23:03:49.517Z",
   "rinks": [
     {
       "id": "snoking",
@@ -132,8 +132,7 @@
           "registered": 0,
           "capacity": 400,
           "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": true
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
