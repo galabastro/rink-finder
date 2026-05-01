@@ -19,6 +19,7 @@ const RINKS = [
     color: '#32b5b5',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
     type: 'daysmart',
+    dateRange: 7, // scrape next 7 days — page needs ?date= to show specific instances
   },
 ];
 
@@ -163,7 +164,18 @@ async function main() {
     };
 
     try {
-      rinkOutput.sessions = await scrapeDaySmart(page, rink);
+      if (rink.dateRange) {
+        for (let i = 0; i < rink.dateRange; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() + i);
+          const dateStr = d.toISOString().split('T')[0];
+          const urlWithDate = rink.url + `&date=${dateStr}`;
+          const daySessions = await scrapeDaySmart(page, { ...rink, url: urlWithDate });
+          rinkOutput.sessions.push(...daySessions);
+        }
+      } else {
+        rinkOutput.sessions = await scrapeDaySmart(page, rink);
+      }
     } catch (err) {
       rinkOutput.error = err.message;
       console.error(`  ✗ ${rink.name} failed: ${err.message}`);

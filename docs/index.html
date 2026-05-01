@@ -661,19 +661,28 @@ function buildDateNav() {
 // ─── Build rink filter chips ────────────────────────────────────────────────
 function buildFilters() {
   const bar = document.getElementById('filter-bar');
-  // Remove old chips (keep label)
   bar.querySelectorAll('.filter-chip').forEach(el => el.remove());
 
   if (!allData?.rinks?.length) return;
 
+  // "All Rinks" chip — always first, active when no specific rink is selected
+  const allChip = document.createElement('button');
+  allChip.className = 'filter-chip' + (activeRinks.size === 0 ? ' active' : '');
+  allChip.textContent = 'All Rinks';
+  allChip.addEventListener('click', () => {
+    activeRinks.clear();
+    buildFilters();
+    render();
+  });
+  bar.appendChild(allChip);
+
   for (const rink of allData.rinks) {
     const chip = document.createElement('button');
-    chip.className = 'filter-chip' + (activeRinks.size === 0 || activeRinks.has(rink.id) ? ' active' : '');
+    chip.className = 'filter-chip' + (activeRinks.has(rink.id) ? ' active' : '');
     chip.innerHTML = `<span class="chip-dot" style="background:${rink.color}"></span>${rink.name}`;
     chip.addEventListener('click', () => {
       if (activeRinks.has(rink.id)) {
         activeRinks.delete(rink.id);
-        // If nothing active, show all
       } else {
         activeRinks.add(rink.id);
       }
