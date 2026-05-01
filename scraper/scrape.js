@@ -231,10 +231,16 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
 
 // ─── Party rental calendar ────────────────────────────────────────────────
 
-function fetchText(url) {
+function fetchText(url, redirects = 5) {
   return new Promise((resolve, reject) => {
+    if (redirects === 0) return reject(new Error('Too many redirects'));
     const mod = url.startsWith('https') ? https : http;
     mod.get(url, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        res.resume();
+        const next = new URL(res.headers.location, url).href;
+        return resolve(fetchText(next, redirects - 1));
+      }
       let data = '';
       res.on('data', c => data += c);
       res.on('end', () => resolve(data));
