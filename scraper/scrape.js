@@ -10,6 +10,7 @@ const RINKS = [
     location: 'Kirkland / Renton / Snoqualmie, WA',
     color: '#1a6fc4',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3',
+    slideNav: 7,
     type: 'daysmart',
   },
   {
@@ -153,7 +154,25 @@ async function scrapeDaySmart(page, rink) {
   return sessions.map(s => ({ ...s, rinkId: rink.id }));
 }
 
-// ─── DaySmart slide-nav scraper (Kraken) ──────────────────────────────────
+// Read the current slide's date from the swiper carousel active card.
+async function readSwiperDate(page) {
+  const result = await page.evaluate(() => {
+    const active = document.querySelector('.swiper-slide-active');
+    if (!active) return null;
+    const monthEl = active.querySelector('h6');
+    const dayEl = active.querySelector('h3');
+    if (!monthEl || !dayEl) return null;
+    return { month: monthEl.innerText.trim(), day: parseInt(dayEl.innerText.trim(), 10) };
+  });
+  if (!result || isNaN(result.day)) return null;
+  const monthIdx = MONTHS.findIndex(m => m.toLowerCase() === result.month.toLowerCase().slice(0, 3));
+  if (monthIdx === -1) return null;
+  const d = new Date(new Date().getFullYear(), monthIdx, result.day);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// ─── DaySmart slide-nav scraper ────────────────────────────────────────────
 async function scrapeDaySmartSlideNav(page, rink, numDays) {
   console.log(`\n  Scraping ${rink.name} via slide nav (${numDays} days)...`);
   await page.goto(rink.url, { waitUntil: 'networkidle', timeout: 45000 });
@@ -171,9 +190,9 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
     console.log(`  Slide ${i}: ${raw.length} cards`);
 
     if (i === 0) {
-      // Determine which day slide 0 represents from session names
-      slideDate = inferSlideDate(raw, today);
-      console.log(`  Slide 0 date inferred: ${MONTHS[slideDate.getMonth()]} ${slideDate.getDate()} ${slideDate.getFullYear()}`);
+      // Prefer reading the date from the swiper carousel; fall back to name inference.
+      slideDate = await readSwiperDate(page) || inferSlideDate(raw, today);
+      console.log(`  Slide 0 date: ${MONTHS[slideDate.getMonth()]} ${slideDate.getDate()} ${slideDate.getFullYear()}`);
     }
 
     if (raw.length > 0 && slideDate) {
@@ -182,9 +201,9 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
         allSessions.push({
           ...s,
           rinkId: rink.id,
-          date: s.date || dateLabel,
-          start: s.start || (s.startRaw ? `${dateLabel} ${s.startRaw}` : null),
-          end:   s.end   || (s.endRaw   ? `${dateLabel} ${s.endRaw}`   : null),
+          date: dateLabel,
+          start: s.startRaw ? `${dateLabel} ${s.startRaw}` : s.start,
+          end:   s.endRaw   ? `${dateLabel} ${s.endRaw}`   : s.end,
         });
       }
     }
@@ -201,7 +220,7 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
     }
   }
 
-  console.log(`  ✓ Total Kraken sessions: ${allSessions.length}`);
+  console.log(`  ✓ Total ${rink.name} sessions: ${allSessions.length}`);
   return allSessions;
 }
 
