@@ -20,7 +20,7 @@ const RINKS = [
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
     // Page shows sessions for a specific date but never writes the date into the
     // card DOM — must be injected from the URL parameter after scraping.
-    dateUrl: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?date={DATE}&sport_ids=30',
+    dateUrl: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?date={DATE}&&sport_ids=30',
     dateRange: 7,
     type: 'daysmart',
   },
