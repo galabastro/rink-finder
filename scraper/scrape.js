@@ -15,6 +15,8 @@ const RINKS = [
     slideNav: 7,
     type: 'daysmart',
     partyCalendars: [
+      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=1', location: 'Kirkland' },
+      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=2', location: 'Renton' },
       { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=3', location: 'Snoqualmie' },
     ],
   },
@@ -254,7 +256,8 @@ function parsePartyRentals(ical) {
   const blocks = ical.split('BEGIN:VEVENT');
   for (const block of blocks.slice(1)) {
     const get = key => { const m = block.match(new RegExp(`${key}[^:]*:([^\r\n]+)`)); return m ? m[1].trim() : ''; };
-    if (!/party room rental/i.test(get('SUMMARY'))) continue;
+    const summary = get('SUMMARY');
+    if (!/party/i.test(summary) || !/rental/i.test(summary)) continue;
     const dtstart = get('DTSTART');
     const dtend   = get('DTEND');
     if (!dtstart || !dtend) continue;
