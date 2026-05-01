@@ -488,13 +488,23 @@
     .party-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.35rem;
       font-family: 'DM Mono', monospace;
       font-size: 0.6rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #e07b39;
-      margin-top: 0.15rem;
+      color: #1a1a2e;
+      background: repeating-linear-gradient(
+        -45deg,
+        #f5c800,
+        #f5c800 4px,
+        #1a1a1a 4px,
+        #1a1a1a 8px
+      );
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      margin-top: 0.2rem;
+      font-weight: 700;
     }
 
     /* ── Loading skeleton ── */
@@ -789,7 +799,7 @@ function render() {
       <div class="card-info">
         <div class="card-session-name">${session.name || 'Public Skate'}</div>
         ${isLive ? '<div class="live-badge"><span class="live-dot"></span>In Progress</div>' : ''}
-        ${session.partyWarning ? '<div class="party-badge">🎉 Party nearby</div>' : ''}
+        ${session.partyWarning ? '<div class="party-badge">⚠ Party nearby</div>' : ''}
         <div class="card-rink">
           <span class="rink-dot" style="background:${rink.color}"></span>
           ${rink.name}${session.location ? ` · ${session.location}` : ''}
