@@ -300,8 +300,7 @@ async function tagPartyWarnings(sessions, partyCalendars) {
       for (const r of rentals) {
         if (r.date !== sessionDate) continue;
         if (r.startMin < sessionEndMin + 60 && r.endMin > sessionStartMin - 60) {
-          s.partyWarning = true;
-          break;
+          s.partyWarning = (s.partyWarning || 0) + 1;
         }
       }
     }
