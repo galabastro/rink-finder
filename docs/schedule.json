@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-01T23:16:43.045Z",
+  "scrapedAt": "2026-05-01T23:22:10.843Z",
   "rinks": [
     {
       "id": "snoking",
@@ -118,8 +118,7 @@
           "registered": 3,
           "capacity": 400,
           "spotsRemaining": 397,
-          "rinkId": "snoking",
-          "partyWarning": 1
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -133,8 +132,7 @@
           "registered": 0,
           "capacity": 400,
           "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": 1
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -148,8 +146,7 @@
           "registered": 0,
           "capacity": 400,
           "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": 3
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -163,8 +160,7 @@
           "registered": 1,
           "capacity": 400,
           "spotsRemaining": 399,
-          "rinkId": "snoking",
-          "partyWarning": 3
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -493,9 +489,9 @@
           "endRaw": "7:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 48,
+          "registered": 51,
           "capacity": 300,
-          "spotsRemaining": 252,
+          "spotsRemaining": 249,
           "rinkId": "kraken"
         },
         {
