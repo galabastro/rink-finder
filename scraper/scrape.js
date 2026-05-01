@@ -276,6 +276,7 @@ async function tagPartyWarnings(sessions, partyCalendars) {
     let rentals;
     try {
       const text = await fetchText(cal.url);
+      console.log(`  iCal fetch for ${cal.location}: ${text.length} bytes, hasParty=${text.includes('Party Room Rental')}`);
       rentals = parsePartyRentals(text);
       console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found`);
     } catch (err) {
