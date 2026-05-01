@@ -536,7 +536,6 @@ function dateLabel(dateStr) {
 }
 
 function fmt12(timeStr) {
-  // Parses "HH:MM" or "HH:MM:SS" or ISO datetime and returns "3:30 PM"
   if (!timeStr) return '?';
   try {
     const d = new Date(timeStr);
@@ -545,6 +544,17 @@ function fmt12(timeStr) {
       const ampm = h >= 12 ? 'PM' : 'AM';
       h = h % 12 || 12;
       return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+    }
+    // Handle "H:MMam/pm" embedded in strings like "May 1 2026 9:30am"
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
+    if (match) {
+      let h = parseInt(match[1]), min = parseInt(match[2]);
+      const isPm = match[3].toLowerCase() === 'pm';
+      if (isPm && h !== 12) h += 12;
+      if (!isPm && h === 12) h = 0;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${String(min).padStart(2,'0')} ${ampm}`;
     }
     // Try "HH:MM" format
     const [hh, mm] = timeStr.split(':').map(Number);
@@ -555,7 +565,15 @@ function fmt12(timeStr) {
 }
 
 function sessionDate(session) {
-  // Returns "YYYY-MM-DD" from a session's start field
+  // Returns "YYYY-MM-DD". Prefers session.date ("May 1 2026") to avoid cross-browser
+  // parse issues with non-ISO start strings like "May 1 2026 9:30am".
+  if (session.date) {
+    const m = session.date.match(/^(\w+)\s+(\d+)\s+(\d{4})$/);
+    if (m) {
+      const month = MONTH_NAMES.indexOf(m[1].slice(0, 3));
+      if (month !== -1) return `${m[3]}-${String(month + 1).padStart(2, '0')}-${String(parseInt(m[2])).padStart(2, '0')}`;
+    }
+  }
   if (!session.start) return null;
   try {
     const d = new Date(session.start);
@@ -666,8 +684,18 @@ function render() {
       continue;
     }
 
-    // Sort by start time
-    sessions.sort((a, b) => new Date(a.start) - new Date(b.start));
+    // Sort by start time, falling back to regex parse for non-ISO strings
+    const toMins = s => {
+      const d = new Date(s.start);
+      if (!isNaN(d)) return d.getHours() * 60 + d.getMinutes();
+      const m = (s.start || '').match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
+      if (!m) return 0;
+      let h = parseInt(m[1]);
+      if (m[3].toLowerCase() === 'pm' && h !== 12) h += 12;
+      if (m[3].toLowerCase() === 'am' && h === 12) h = 0;
+      return h * 60 + parseInt(m[2]);
+    };
+    sessions.sort((a, b) => toMins(a) - toMins(b));
 
     for (const [i, session] of sessions.entries()) {
       const card = document.createElement('div');
@@ -689,7 +717,7 @@ function render() {
           <div class="card-session-name">${session.name || 'Public Skate'}</div>
           <div class="card-rink">
             <span class="rink-dot" style="background:${rink.color}"></span>
-            ${rink.name} · ${rink.location}
+            ${rink.name}${session.location ? ` · ${session.location}` : ''}
           </div>
         </div>
         <div class="card-meta">
