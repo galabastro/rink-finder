@@ -701,106 +701,44 @@ function render() {
   if (!allData) return;
 
   const showAll = activeRinks.size === 0;
-  let totalShown = 0;
+  const rinkMap = Object.fromEntries(allData.rinks.map(r => [r.id, r]));
 
+  // Show scrape errors inline
   for (const rink of allData.rinks) {
-    if (!showAll && !activeRinks.has(rink.id)) continue;
-
-    // Rink header
-    const header = document.createElement('div');
-    header.className = 'rink-header';
-    header.style.borderLeftColor = rink.color;
-    header.innerHTML = `
-      <span class="rink-header-dot" style="background:${rink.color}"></span>
-      <span class="rink-header-name">${rink.name}</span>
-      <span class="rink-header-location">${rink.location}</span>
-      <a class="rink-header-link" href="${rink.url}" target="_blank" rel="noopener">Book ↗</a>
-    `;
-    container.appendChild(header);
-
-    if (rink.error) {
+    if (rink.error && (showAll || activeRinks.has(rink.id))) {
       const err = document.createElement('div');
       err.className = 'error-note';
-      err.textContent = `⚠ Scrape error: ${rink.error}`;
+      err.textContent = `⚠ ${rink.name}: ${rink.error}`;
       container.appendChild(err);
-      continue;
-    }
-
-    // Filter sessions to selected date
-    const sessions = (rink.sessions || []).filter(s => {
-      if (!activeDate) return true;
-      return sessionDate(s) === activeDate;
-    });
-
-    if (sessions.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'no-sessions';
-      empty.textContent = rink.sessions?.length
-        ? `No sessions found for this date.`
-        : `No session data yet — run the scraper to populate.`;
-      container.appendChild(empty);
-      continue;
-    }
-
-    // Sort by start time, falling back to regex parse for non-ISO strings
-    const toMins = s => {
-      const d = new Date(s.start);
-      if (!isNaN(d)) return d.getHours() * 60 + d.getMinutes();
-      const m = (s.start || '').match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
-      if (!m) return 0;
-      let h = parseInt(m[1]);
-      if (m[3].toLowerCase() === 'pm' && h !== 12) h += 12;
-      if (m[3].toLowerCase() === 'am' && h === 12) h = 0;
-      return h * 60 + parseInt(m[2]);
-    };
-    sessions.sort((a, b) => toMins(a) - toMins(b));
-
-    const now = new Date();
-    for (const [i, session] of sessions.entries()) {
-      const startDt = parseSessionDateTime(session.start);
-      const endDt = parseSessionDateTime(session.end);
-      const isPast = endDt ? endDt < now : (startDt ? startDt < now : false);
-      const isLive = startDt && endDt && startDt <= now && endDt > now;
-
-      const card = document.createElement('div');
-      card.className = 'session-card' + (isPast ? ' session-past' : '') + (isLive ? ' session-live' : '');
-      card.style.animationDelay = `${i * 40}ms`;
-      card.style.borderLeftColor = isLive ? '#f0c142' : rink.color;
-
-      const startFmt = fmt12(session.start);
-      const endFmt = session.end ? fmt12(session.end) : null;
-      const price = session.price != null ? `$${session.price.toFixed(2)}` : null;
-      const registered = session.registered;
-      const spots = session.spotsRemaining;
-      const spotsClass = spots != null && spots < 5 ? 'card-spots spots-low' : 'card-spots';
-
-      card.innerHTML = `
-        <div class="card-time">
-          <div class="time-start">${startFmt}</div>
-          ${endFmt ? `<div class="time-end">until ${endFmt}</div>` : ''}
-        </div>
-        <div class="card-info">
-          <div class="card-session-name">${session.name || 'Public Skate'}</div>
-          ${isLive ? '<div class="live-badge"><span class="live-dot"></span>In Progress</div>' : ''}
-          <div class="card-rink">
-            <span class="rink-dot" style="background:${rink.color}"></span>
-            ${rink.name}${session.location ? ` · ${session.location}` : ''}
-          </div>
-        </div>
-        <div class="card-meta">
-          ${price ? `<span class="card-price">${price}</span>` : ''}
-          ${registered != null ? `<span class="card-spots">${registered} signed up</span>` : ''}
-          ${spots != null && spots < 10 ? `<span class="${spotsClass}">${spots} left</span>` : ''}
-        </div>
-      `;
-
-      container.appendChild(card);
-      totalShown++;
     }
   }
 
-  // Global empty state
-  if (container.children.length === 0) {
+  // Collect all sessions across rinks into one flat list
+  const allSessions = [];
+  for (const rink of allData.rinks) {
+    if (!showAll && !activeRinks.has(rink.id)) continue;
+    if (rink.error) continue;
+    for (const s of (rink.sessions || [])) {
+      if (!activeDate || sessionDate(s) === activeDate) {
+        allSessions.push({ ...s, _rink: rink });
+      }
+    }
+  }
+
+  // Sort chronologically
+  const toMins = s => {
+    const d = new Date(s.start);
+    if (!isNaN(d)) return d.getHours() * 60 + d.getMinutes();
+    const m = (s.start || '').match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
+    if (!m) return 0;
+    let h = parseInt(m[1]);
+    if (m[3].toLowerCase() === 'pm' && h !== 12) h += 12;
+    if (m[3].toLowerCase() === 'am' && h === 12) h = 0;
+    return h * 60 + parseInt(m[2]);
+  };
+  allSessions.sort((a, b) => toMins(a) - toMins(b));
+
+  if (allSessions.length === 0 && container.children.length === 0) {
     container.innerHTML = `
       <div class="state-box">
         <div class="state-icon">🏒</div>
@@ -808,6 +746,50 @@ function render() {
         <div class="state-sub">Try a different date or check that the scraper has run.</div>
       </div>
     `;
+    return;
+  }
+
+  const now = new Date();
+  for (const [i, session] of allSessions.entries()) {
+    const rink = session._rink;
+    const startDt = parseSessionDateTime(session.start);
+    const endDt = parseSessionDateTime(session.end);
+    const isPast = endDt ? endDt < now : (startDt ? startDt < now : false);
+    const isLive = startDt && endDt && startDt <= now && endDt > now;
+
+    const card = document.createElement('div');
+    card.className = 'session-card' + (isPast ? ' session-past' : '') + (isLive ? ' session-live' : '');
+    card.style.animationDelay = `${i * 40}ms`;
+    card.style.borderLeftColor = isLive ? '#f0c142' : rink.color;
+
+    const startFmt = fmt12(session.start);
+    const endFmt = session.end ? fmt12(session.end) : null;
+    const price = session.price != null ? `$${session.price.toFixed(2)}` : null;
+    const registered = session.registered;
+    const spots = session.spotsRemaining;
+    const spotsClass = spots != null && spots < 5 ? 'card-spots spots-low' : 'card-spots';
+
+    card.innerHTML = `
+      <div class="card-time">
+        <div class="time-start">${startFmt}</div>
+        ${endFmt ? `<div class="time-end">until ${endFmt}</div>` : ''}
+      </div>
+      <div class="card-info">
+        <div class="card-session-name">${session.name || 'Public Skate'}</div>
+        ${isLive ? '<div class="live-badge"><span class="live-dot"></span>In Progress</div>' : ''}
+        <div class="card-rink">
+          <span class="rink-dot" style="background:${rink.color}"></span>
+          ${rink.name}${session.location ? ` · ${session.location}` : ''}
+        </div>
+      </div>
+      <div class="card-meta">
+        ${price ? `<span class="card-price">${price}</span>` : ''}
+        ${registered != null ? `<span class="card-spots">${registered} signed up</span>` : ''}
+        ${spots != null && spots < 10 ? `<span class="${spotsClass}">${spots} left</span>` : ''}
+      </div>
+    `;
+
+    container.appendChild(card);
   }
 }
 

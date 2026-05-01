@@ -18,6 +18,10 @@ const RINKS = [
     location: 'Seattle, WA',
     color: '#32b5b5',
     url: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30',
+    // Page shows sessions for a specific date but never writes the date into the
+    // card DOM — must be injected from the URL parameter after scraping.
+    dateUrl: 'https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?date={DATE}&sport_ids=30',
+    dateRange: 7,
     type: 'daysmart',
   },
 ];
@@ -150,7 +154,27 @@ async function main() {
     };
 
     try {
-      rinkOutput.sessions = await scrapeDaySmart(page, rink);
+      if (rink.dateRange) {
+        const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        for (let i = 0; i < rink.dateRange; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() + i);
+          const dateStr = d.toISOString().split('T')[0];
+          const url = rink.dateUrl.replace('{DATE}', dateStr);
+          const daySessions = await scrapeDaySmart(page, { ...rink, url });
+          const dateLabel = `${MONTHS[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`;
+          for (const s of daySessions) {
+            rinkOutput.sessions.push(s.date ? s : {
+              ...s,
+              date: dateLabel,
+              start: s.startRaw ? `${dateLabel} ${s.startRaw}` : null,
+              end:   s.endRaw   ? `${dateLabel} ${s.endRaw}`   : null,
+            });
+          }
+        }
+      } else {
+        rinkOutput.sessions = await scrapeDaySmart(page, rink);
+      }
     } catch (err) {
       rinkOutput.error = err.message;
       console.error(`  ✗ ${rink.name} failed: ${err.message}`);
