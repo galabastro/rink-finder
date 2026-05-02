@@ -359,10 +359,12 @@ async function main() {
   console.log('⛸  Starting ice skate time scraper...');
 
   const browser = await chromium.launch({ headless: true });
+  // Use Pacific time so the DaySmart SPA shows the correct current day for Seattle rinks.
+  const context = await browser.newContext({ timezoneId: 'America/Los_Angeles' });
   const output = { scrapedAt: new Date().toISOString(), rinks: [] };
 
   for (const rink of RINKS) {
-    const page = await browser.newPage();
+    const page = await context.newPage();
     await page.route('**/*.{png,jpg,jpeg,gif,webp,woff,woff2,ttf,mp4,mp3}', r => r.abort());
 
     const rinkOutput = {
