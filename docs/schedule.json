@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-02T03:21:04.006Z",
+  "scrapedAt": "2026-05-02T03:25:33.197Z",
   "rinks": [
     {
       "id": "snoking",
@@ -34,7 +34,8 @@
           "registered": 3,
           "capacity": 400,
           "spotsRemaining": 397,
-          "rinkId": "snoking"
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
@@ -48,7 +49,8 @@
           "registered": 1,
           "capacity": 400,
           "spotsRemaining": 399,
-          "rinkId": "snoking"
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
@@ -62,7 +64,8 @@
           "registered": 1,
           "capacity": 400,
           "spotsRemaining": 399,
-          "rinkId": "snoking"
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
@@ -76,7 +79,8 @@
           "registered": 1,
           "capacity": 400,
           "spotsRemaining": 399,
-          "rinkId": "snoking"
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
