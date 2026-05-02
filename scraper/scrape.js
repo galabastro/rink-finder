@@ -233,9 +233,14 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
 
 async function fetchText(url) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; calendar-reader/1.0)' },
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/calendar, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
+    },
     redirect: 'follow',
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
 }
 
@@ -270,7 +275,7 @@ async function tagPartyWarnings(sessions, partyCalendars) {
       await new Promise(r => setTimeout(r, 1000)); // avoid rate-limiting consecutive fetches
       const text = await fetchText(cal.url);
       if (!text.startsWith('BEGIN:VCALENDAR')) {
-        console.error(`  Warning: unexpected iCal response for ${cal.location} (${text.length} bytes): ${text.slice(0, 100)}`);
+        console.error(`  Warning: unexpected iCal response for ${cal.location} (${text.length} bytes): ${JSON.stringify(text.slice(0, 200))}`);
       }
       rentals = parsePartyRentals(text);
       console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found (${text.length} bytes)`);
