@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-02T00:47:59.735Z",
+  "scrapedAt": "2026-05-02T01:39:32.606Z",
   "rinks": [
     {
       "id": "snoking",
@@ -17,9 +17,9 @@
           "endRaw": "2:15pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 12,
+          "registered": 13,
           "capacity": 400,
-          "spotsRemaining": 388,
+          "spotsRemaining": 387,
           "rinkId": "snoking"
         },
         {
@@ -34,8 +34,7 @@
           "registered": 3,
           "capacity": 400,
           "spotsRemaining": 397,
-          "rinkId": "snoking",
-          "partyWarning": true
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -46,11 +45,10 @@
           "endRaw": "5:45pm",
           "location": "Snoqualmie",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": true
+          "spotsRemaining": 399,
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -61,11 +59,10 @@
           "endRaw": "2:00pm",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": true
+          "spotsRemaining": 399,
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
@@ -79,8 +76,7 @@
           "registered": 1,
           "capacity": 400,
           "spotsRemaining": 399,
-          "rinkId": "snoking",
-          "partyWarning": true
+          "rinkId": "snoking"
         },
         {
           "name": "Public Skate",
