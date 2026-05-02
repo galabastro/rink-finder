@@ -269,8 +269,11 @@ async function tagPartyWarnings(sessions, partyCalendars) {
     try {
       await new Promise(r => setTimeout(r, 1000)); // avoid rate-limiting consecutive fetches
       const text = await fetchText(cal.url);
+      if (!text.startsWith('BEGIN:VCALENDAR')) {
+        console.error(`  Warning: unexpected iCal response for ${cal.location} (${text.length} bytes): ${text.slice(0, 100)}`);
+      }
       rentals = parsePartyRentals(text);
-      console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found`);
+      console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found (${text.length} bytes)`);
     } catch (err) {
       console.error(`  Warning: could not fetch party calendar for ${cal.location}: ${err.message}`);
       continue;
