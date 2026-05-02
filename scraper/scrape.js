@@ -244,20 +244,24 @@ async function fetchText(url) {
   return res.text();
 }
 
-// Parse an iCal DTSTART/DTEND string to a local Date.
-// Handles both UTC ("20260503T004500Z") and floating local ("20260502T174500") forms.
-function parseIcalDt(s) {
-  s = s.replace(/[^0-9TZ]/g, '');
-  if (s.endsWith('Z')) {
-    return new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(9,11)}:${s.slice(11,13)}:${s.slice(13,15)}Z`);
-  }
-  return new Date(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8), +s.slice(9,11), +s.slice(11,13));
+// The session times from DaySmart are labeled in America/Los_Angeles (Pacific) time.
+// Google Calendar exports iCal in UTC (Z suffix). We extract Pacific date/time from UTC
+// values so they compare correctly against session times.
+const PACIFIC_FMT = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Los_Angeles',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', hour12: false,
+});
+
+function dtToPacificParts(utcDate) {
+  const p = Object.fromEntries(PACIFIC_FMT.formatToParts(utcDate).map(x => [x.type, x.value]));
+  const h = parseInt(p.hour) === 24 ? 0 : parseInt(p.hour);
+  return { date: `${p.year}${p.month}${p.day}`, minutes: h * 60 + parseInt(p.minute) };
 }
 
 // Parse iCal text → array of { date, startMin, endMin, location } for Party Room Rental events.
 function parsePartyRentals(ical) {
   const rentals = [];
-  const pad2 = n => String(n).padStart(2, '0');
   const blocks = ical.split('BEGIN:VEVENT');
   for (const block of blocks.slice(1)) {
     const get = key => { const m = block.match(new RegExp(`${key}[^:]*:([^\r\n]+)`)); return m ? m[1].trim() : ''; };
@@ -266,13 +270,28 @@ function parsePartyRentals(ical) {
     const dtstart = get('DTSTART');
     const dtend   = get('DTEND');
     if (!dtstart || !dtend) continue;
-    const startDt = parseIcalDt(dtstart);
-    const endDt   = parseIcalDt(dtend);
-    if (isNaN(startDt) || isNaN(endDt)) continue;
+
+    let startParts, endParts;
+    const s = dtstart.trim().replace(/[^0-9TZ]/g, '');
+    if (s.endsWith('Z')) {
+      // UTC from Google Calendar — convert to Pacific
+      const startUTC = new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(9,11)}:${s.slice(11,13)}:${s.slice(13,15)}Z`);
+      const e = dtend.trim().replace(/[^0-9TZ]/g, '');
+      const endUTC = new Date(`${e.slice(0,4)}-${e.slice(4,6)}-${e.slice(6,8)}T${e.slice(9,11)}:${e.slice(11,13)}:${e.slice(13,15)}Z`);
+      if (isNaN(startUTC) || isNaN(endUTC)) continue;
+      startParts = dtToPacificParts(startUTC);
+      endParts   = dtToPacificParts(endUTC);
+    } else {
+      // Floating local (Pacific) — read digits directly
+      startParts = { date: s.slice(0, 8), minutes: +s.slice(9, 11) * 60 + +s.slice(11, 13) };
+      const e = dtend.trim().replace(/[^0-9TZ]/g, '');
+      endParts   = { date: e.slice(0, 8), minutes: +e.slice(9, 11) * 60 + +e.slice(11, 13) };
+    }
+
     rentals.push({
-      date:     `${startDt.getFullYear()}${pad2(startDt.getMonth()+1)}${pad2(startDt.getDate())}`,
-      startMin: startDt.getHours() * 60 + startDt.getMinutes(),
-      endMin:   endDt.getHours()   * 60 + endDt.getMinutes(),
+      date:     startParts.date,
+      startMin: startParts.minutes,
+      endMin:   endParts.minutes,
       location: get('LOCATION'),
     });
   }
