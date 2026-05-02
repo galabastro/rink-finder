@@ -684,6 +684,9 @@ function buildDateNav() {
       }
     }
     dates = [...seen].sort();
+    // Always show today even if the scraper only captured tomorrow onwards
+    const today = todayStr();
+    if (dates.length && !dates.includes(today)) dates = [today, ...dates].sort();
   }
   if (!dates.length) {
     for (let i = 0; i < 7; i++) {
@@ -859,12 +862,14 @@ async function loadData() {
       el.innerHTML = `<span class="status-dot"></span>No scrape data yet`;
     }
 
-    // Snap activeDate to first available date if current selection has no sessions
+    // Snap activeDate to first available date, but never jump away from today
     const availDates = new Set();
     for (const rink of allData.rinks) {
       for (const s of (rink.sessions || [])) { const d = sessionDate(s); if (d) availDates.add(d); }
     }
-    if (!availDates.has(activeDate)) activeDate = [...availDates].sort()[0] || activeDate;
+    if (!availDates.has(activeDate) && activeDate !== todayStr()) {
+      activeDate = [...availDates].sort()[0] || activeDate;
+    }
 
     buildDateNav();
     buildFilters();

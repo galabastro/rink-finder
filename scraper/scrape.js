@@ -244,9 +244,20 @@ async function fetchText(url) {
   return res.text();
 }
 
+// Parse an iCal DTSTART/DTEND string to a local Date.
+// Handles both UTC ("20260503T004500Z") and floating local ("20260502T174500") forms.
+function parseIcalDt(s) {
+  s = s.replace(/[^0-9TZ]/g, '');
+  if (s.endsWith('Z')) {
+    return new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(9,11)}:${s.slice(11,13)}:${s.slice(13,15)}Z`);
+  }
+  return new Date(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8), +s.slice(9,11), +s.slice(11,13));
+}
+
 // Parse iCal text → array of { date, startMin, endMin, location } for Party Room Rental events.
 function parsePartyRentals(ical) {
   const rentals = [];
+  const pad2 = n => String(n).padStart(2, '0');
   const blocks = ical.split('BEGIN:VEVENT');
   for (const block of blocks.slice(1)) {
     const get = key => { const m = block.match(new RegExp(`${key}[^:]*:([^\r\n]+)`)); return m ? m[1].trim() : ''; };
@@ -255,11 +266,13 @@ function parsePartyRentals(ical) {
     const dtstart = get('DTSTART');
     const dtend   = get('DTEND');
     if (!dtstart || !dtend) continue;
-    const toMin = s => parseInt(s.slice(9, 11), 10) * 60 + parseInt(s.slice(11, 13), 10);
+    const startDt = parseIcalDt(dtstart);
+    const endDt   = parseIcalDt(dtend);
+    if (isNaN(startDt) || isNaN(endDt)) continue;
     rentals.push({
-      date:     dtstart.slice(0, 8),        // "YYYYMMDD"
-      startMin: toMin(dtstart),
-      endMin:   toMin(dtend),
+      date:     `${startDt.getFullYear()}${pad2(startDt.getMonth()+1)}${pad2(startDt.getDate())}`,
+      startMin: startDt.getHours() * 60 + startDt.getMinutes(),
+      endMin:   endDt.getHours()   * 60 + endDt.getMinutes(),
       location: get('LOCATION'),
     });
   }
