@@ -667,16 +667,30 @@ function sessionDate(session) {
   return null;
 }
 
-// ─── Build date nav (next 7 days) ──────────────────────────────────────────
+// ─── Build date nav ────────────────────────────────────────────────────────
 function buildDateNav() {
   const nav = document.getElementById('date-nav');
   nav.innerHTML = '';
-  const dates = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    dates.push(str);
+
+  // Derive dates from loaded data so the nav always matches what's in schedule.json
+  // regardless of timezone differences between the GitHub Actions runner (UTC) and the browser.
+  let dates = [];
+  if (allData?.rinks) {
+    const seen = new Set();
+    for (const rink of allData.rinks) {
+      for (const s of (rink.sessions || [])) {
+        const d = sessionDate(s);
+        if (d) seen.add(d);
+      }
+    }
+    dates = [...seen].sort();
+  }
+  if (!dates.length) {
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      dates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    }
   }
 
   for (const dateStr of dates) {
@@ -845,6 +859,14 @@ async function loadData() {
       el.innerHTML = `<span class="status-dot"></span>No scrape data yet`;
     }
 
+    // Snap activeDate to first available date if current selection has no sessions
+    const availDates = new Set();
+    for (const rink of allData.rinks) {
+      for (const s of (rink.sessions || [])) { const d = sessionDate(s); if (d) availDates.add(d); }
+    }
+    if (!availDates.has(activeDate)) activeDate = [...availDates].sort()[0] || activeDate;
+
+    buildDateNav();
     buildFilters();
     render();
   } catch (err) {
