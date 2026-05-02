@@ -1,7 +1,5 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
-const https = require('https');
-const http = require('http');
 const path = require('path');
 
 // ─── Rink Configuration ────────────────────────────────────────────────────
@@ -233,21 +231,12 @@ async function scrapeDaySmartSlideNav(page, rink, numDays) {
 
 // ─── Party rental calendar ────────────────────────────────────────────────
 
-function fetchText(url, redirects = 5) {
-  return new Promise((resolve, reject) => {
-    if (redirects === 0) return reject(new Error('Too many redirects'));
-    const mod = url.startsWith('https') ? https : http;
-    mod.get(url, res => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        res.resume();
-        const next = new URL(res.headers.location, url).href;
-        return resolve(fetchText(next, redirects - 1));
-      }
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => resolve(data));
-    }).on('error', reject);
+async function fetchText(url) {
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; calendar-reader/1.0)' },
+    redirect: 'follow',
   });
+  return res.text();
 }
 
 // Parse iCal text → array of { date, startMin, endMin, location } for Party Room Rental events.
