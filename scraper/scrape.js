@@ -280,6 +280,7 @@ async function tagPartyWarnings(sessions, partyCalendars) {
     try {
       await new Promise(r => setTimeout(r, 1000)); // avoid rate-limiting consecutive fetches
       const text = await fetchText(cal.url);
+      console.log(`  iCal ${cal.location}: ${text.length} bytes`);
       rentals = parsePartyRentals(text);
       console.log(`  Party rentals fetched for ${cal.location}: ${rentals.length} found`);
     } catch (err) {
