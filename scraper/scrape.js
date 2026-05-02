@@ -13,9 +13,9 @@ const RINKS = [
     slideNav: 7,
     type: 'daysmart',
     partyCalendars: [
-      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=1', location: 'Kirkland' },
-      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=2', location: 'Renton' },
-      { url: 'http://sportsix.sports-it.com/ical?cid=snoking&facility=3', location: 'Snoqualmie' },
+      { url: 'https://calendar.google.com/calendar/ical/9vmqtua3o1qp67do0s366fsupcokf1p6%40import.calendar.google.com/public/basic.ics', location: 'Kirkland' },
+      { url: 'https://calendar.google.com/calendar/ical/nc61bfd2a4h8fcl31a064mviq3o4us7l%40import.calendar.google.com/public/basic.ics', location: 'Renton' },
+      { url: 'https://calendar.google.com/calendar/ical/03v79b489po0flbkfcgfr63qfsnnqau3%40import.calendar.google.com/public/basic.ics', location: 'Snoqualmie' },
     ],
   },
   {
