@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-03T12:18:44.780Z",
+  "scrapedAt": "2026-05-03T16:17:08.574Z",
   "rinks": [
     {
       "id": "snoking",
@@ -32,9 +32,9 @@
           "endRaw": "2:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 15,
+          "registered": 19,
           "capacity": 400,
-          "spotsRemaining": 385,
+          "spotsRemaining": 381,
           "rinkId": "snoking",
           "partyWarning": true
         },
@@ -509,9 +509,9 @@
           "endRaw": "2:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 6,
+          "registered": 9,
           "capacity": 300,
-          "spotsRemaining": 294,
+          "spotsRemaining": 291,
           "rinkId": "kraken"
         },
         {
@@ -523,9 +523,9 @@
           "endRaw": "5:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 9,
+          "registered": 12,
           "capacity": 300,
-          "spotsRemaining": 291,
+          "spotsRemaining": 288,
           "rinkId": "kraken"
         },
         {
