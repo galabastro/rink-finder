@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-04T12:35:22.471Z",
+  "scrapedAt": "2026-05-04T16:35:00.103Z",
   "rinks": [
     {
       "id": "snoking",
@@ -17,9 +17,9 @@
           "endRaw": "10:45am",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
+          "registered": 4,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 396,
           "rinkId": "snoking"
         },
         {
@@ -31,9 +31,9 @@
           "endRaw": "12:30pm",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
