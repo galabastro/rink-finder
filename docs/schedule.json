@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-12T08:59:09.113Z",
+  "scrapedAt": "2026-05-12T12:41:30.291Z",
   "rinks": [
     {
       "id": "snoking",
@@ -87,9 +87,9 @@
           "endRaw": "5:00pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
