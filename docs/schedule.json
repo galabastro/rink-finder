@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-17T05:18:33.495Z",
+  "scrapedAt": "2026-05-17T08:44:35.208Z",
   "rinks": [
     {
       "id": "snoking",
@@ -8,64 +8,6 @@
       "color": "#1a6fc4",
       "url": "https://apps.daysmartrecreation.com/dash/x/#/online/snoking/event-registration?event_types=12&program_types=3",
       "sessions": [
-        {
-          "name": "Public Skate",
-          "date": "May 16 2026",
-          "start": "May 16 2026 11:45am",
-          "end": "May 16 2026 1:30pm",
-          "startRaw": "11:45am",
-          "endRaw": "1:30pm",
-          "location": "Snoqualmie",
-          "price": 15,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "snoking"
-        },
-        {
-          "name": "Public Skate",
-          "date": "May 16 2026",
-          "start": "May 16 2026 1:00pm",
-          "end": "May 16 2026 2:15pm",
-          "startRaw": "1:00pm",
-          "endRaw": "2:15pm",
-          "location": "Kirkland",
-          "price": 15,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "snoking",
-          "partyWarning": true
-        },
-        {
-          "name": "Public Skate",
-          "date": "May 16 2026",
-          "start": "May 16 2026 1:40pm",
-          "end": "May 16 2026 3:30pm",
-          "startRaw": "1:40pm",
-          "endRaw": "3:30pm",
-          "location": "Renton",
-          "price": 15,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "snoking",
-          "partyWarning": true
-        },
-        {
-          "name": "Public Skate",
-          "date": "May 16 2026",
-          "start": "May 16 2026 1:45pm",
-          "end": "May 16 2026 3:30pm",
-          "startRaw": "1:45pm",
-          "endRaw": "3:30pm",
-          "location": "Snoqualmie",
-          "price": 15,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "snoking"
-        },
         {
           "name": "Public Skate",
           "date": "May 17 2026",
@@ -148,9 +90,9 @@
           "endRaw": "1:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
@@ -502,6 +444,78 @@
           "capacity": 400,
           "spotsRemaining": 400,
           "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 11:45am",
+          "end": "May 23 2026 1:30pm",
+          "startRaw": "11:45am",
+          "endRaw": "1:30pm",
+          "location": "Snoqualmie",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking",
+          "partyWarning": true
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 1:00pm",
+          "end": "May 23 2026 2:15pm",
+          "startRaw": "1:00pm",
+          "endRaw": "2:15pm",
+          "location": "Kirkland",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 1:30pm",
+          "end": "May 23 2026 3:30pm",
+          "startRaw": "1:30pm",
+          "endRaw": "3:30pm",
+          "location": "Renton",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 1:45pm",
+          "end": "May 23 2026 3:30pm",
+          "startRaw": "1:45pm",
+          "endRaw": "3:30pm",
+          "location": "Snoqualmie",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking",
+          "partyWarning": true
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 2:30pm",
+          "end": "May 23 2026 3:45pm",
+          "startRaw": "2:30pm",
+          "endRaw": "3:45pm",
+          "location": "Kirkland",
+          "price": 15,
+          "registered": 0,
+          "capacity": 150,
+          "spotsRemaining": 150,
+          "rinkId": "snoking"
         }
       ],
       "error": null
@@ -514,48 +528,6 @@
       "url": "https://apps.daysmartrecreation.com/dash/x/#/online/kraken/event-registration?sport_ids=30",
       "sessions": [
         {
-          "name": "Public Skate Saturdays",
-          "date": "May 16 2026",
-          "start": "May 16 2026 12:45pm",
-          "end": "May 16 2026 2:30pm",
-          "startRaw": "12:45pm",
-          "endRaw": "2:30pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Saturdays",
-          "date": "May 16 2026",
-          "start": "May 16 2026 3:15pm",
-          "end": "May 16 2026 4:45pm",
-          "startRaw": "3:15pm",
-          "endRaw": "4:45pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Saturdays",
-          "date": "May 16 2026",
-          "start": "May 16 2026 6:15pm",
-          "end": "May 16 2026 7:45pm",
-          "startRaw": "6:15pm",
-          "endRaw": "7:45pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": null,
-          "capacity": null,
-          "spotsRemaining": null,
-          "rinkId": "kraken"
-        },
-        {
           "name": "Public Skate Sundays",
           "date": "May 17 2026",
           "start": "May 17 2026 1:00pm",
@@ -564,9 +536,9 @@
           "endRaw": "2:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 5,
+          "registered": 9,
           "capacity": 300,
-          "spotsRemaining": 295,
+          "spotsRemaining": 291,
           "rinkId": "kraken"
         },
         {
@@ -707,6 +679,34 @@
           "registered": 7,
           "capacity": 300,
           "spotsRemaining": 293,
+          "rinkId": "kraken"
+        },
+        {
+          "name": "Public Skate Saturdays",
+          "date": "May 23 2026",
+          "start": "May 23 2026 12:45pm",
+          "end": "May 23 2026 2:30pm",
+          "startRaw": "12:45pm",
+          "endRaw": "2:30pm",
+          "location": "Kraken Community Iceplex",
+          "price": 15.86,
+          "registered": 4,
+          "capacity": 300,
+          "spotsRemaining": 296,
+          "rinkId": "kraken"
+        },
+        {
+          "name": "Public Skate Saturdays",
+          "date": "May 23 2026",
+          "start": "May 23 2026 3:15pm",
+          "end": "May 23 2026 4:45pm",
+          "startRaw": "3:15pm",
+          "endRaw": "4:45pm",
+          "location": "Kraken Community Iceplex",
+          "price": 15.86,
+          "registered": 0,
+          "capacity": 300,
+          "spotsRemaining": 300,
           "rinkId": "kraken"
         }
       ],
