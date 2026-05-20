@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-20T17:05:11.789Z",
+  "scrapedAt": "2026-05-20T20:44:12.114Z",
   "rinks": [
     {
       "id": "snoking",
@@ -17,9 +17,9 @@
           "endRaw": "11:30am",
           "location": "Renton",
           "price": 15,
-          "registered": 2,
-          "capacity": 400,
-          "spotsRemaining": 398,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "snoking"
         },
         {
@@ -31,9 +31,9 @@
           "endRaw": "11:45am",
           "location": "Kirkland",
           "price": 15,
-          "registered": 15,
-          "capacity": 400,
-          "spotsRemaining": 385,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "snoking"
         },
         {
@@ -45,9 +45,9 @@
           "endRaw": "12:45pm",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
-          "capacity": 400,
-          "spotsRemaining": 400,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "snoking"
         },
         {
@@ -59,9 +59,9 @@
           "endRaw": "2:00pm",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
+          "registered": 4,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 396,
           "rinkId": "snoking"
         },
         {
@@ -73,9 +73,9 @@
           "endRaw": "2:15pm",
           "location": "Snoqualmie",
           "price": 15,
-          "registered": 1,
+          "registered": 6,
           "capacity": 400,
-          "spotsRemaining": 399,
+          "spotsRemaining": 394,
           "rinkId": "snoking"
         },
         {
@@ -292,21 +292,6 @@
         {
           "name": "Public Skate",
           "date": "May 23 2026",
-          "start": "May 23 2026 1:45pm",
-          "end": "May 23 2026 3:30pm",
-          "startRaw": "1:45pm",
-          "endRaw": "3:30pm",
-          "location": "Snoqualmie",
-          "price": 15,
-          "registered": 0,
-          "capacity": 400,
-          "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": true
-        },
-        {
-          "name": "Public Skate",
-          "date": "May 23 2026",
           "start": "May 23 2026 2:30pm",
           "end": "May 23 2026 3:45pm",
           "startRaw": "2:30pm",
@@ -317,6 +302,21 @@
           "capacity": 150,
           "spotsRemaining": 150,
           "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 23 2026",
+          "start": "May 23 2026 1:45pm",
+          "end": "May 23 2026 4:00pm",
+          "startRaw": "1:45pm",
+          "endRaw": "4:00pm",
+          "location": "Snoqualmie",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
@@ -349,21 +349,6 @@
         {
           "name": "Public Skate",
           "date": "May 24 2026",
-          "start": "May 24 2026 1:20pm",
-          "end": "May 24 2026 2:30pm",
-          "startRaw": "1:20pm",
-          "endRaw": "2:30pm",
-          "location": "Snoqualmie",
-          "price": 15,
-          "registered": 0,
-          "capacity": 400,
-          "spotsRemaining": 400,
-          "rinkId": "snoking",
-          "partyWarning": true
-        },
-        {
-          "name": "Public Skate",
-          "date": "May 24 2026",
           "start": "May 24 2026 1:15pm",
           "end": "May 24 2026 2:45pm",
           "startRaw": "1:15pm",
@@ -388,6 +373,21 @@
           "capacity": 400,
           "spotsRemaining": 400,
           "rinkId": "snoking"
+        },
+        {
+          "name": "Public Skate",
+          "date": "May 24 2026",
+          "start": "May 24 2026 1:20pm",
+          "end": "May 24 2026 3:00pm",
+          "startRaw": "1:20pm",
+          "endRaw": "3:00pm",
+          "location": "Snoqualmie",
+          "price": 15,
+          "registered": 0,
+          "capacity": 400,
+          "spotsRemaining": 400,
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
@@ -562,9 +562,9 @@
           "endRaw": "12:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 3,
-          "capacity": 300,
-          "spotsRemaining": 297,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "kraken"
         },
         {
@@ -576,9 +576,9 @@
           "endRaw": "7:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 7,
+          "registered": 9,
           "capacity": 300,
-          "spotsRemaining": 293,
+          "spotsRemaining": 291,
           "rinkId": "kraken"
         },
         {
@@ -590,9 +590,9 @@
           "endRaw": "12:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 1,
+          "registered": 3,
           "capacity": 300,
-          "spotsRemaining": 299,
+          "spotsRemaining": 297,
           "rinkId": "kraken"
         },
         {
@@ -604,9 +604,9 @@
           "endRaw": "1:30pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 0,
+          "registered": 1,
           "capacity": 300,
-          "spotsRemaining": 300,
+          "spotsRemaining": 299,
           "rinkId": "kraken"
         },
         {
@@ -618,9 +618,9 @@
           "endRaw": "5:00pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 2,
+          "registered": 3,
           "capacity": 300,
-          "spotsRemaining": 298,
+          "spotsRemaining": 297,
           "rinkId": "kraken"
         },
         {
