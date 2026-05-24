@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-24T08:52:58.262Z",
+  "scrapedAt": "2026-05-24T12:24:44.712Z",
   "rinks": [
     {
       "id": "snoking",
@@ -518,9 +518,9 @@
           "endRaw": "11:30am",
           "location": "Kraken Community Iceplex",
           "price": 10.85,
-          "registered": 15,
+          "registered": 16,
           "capacity": 100,
-          "spotsRemaining": 85,
+          "spotsRemaining": 84,
           "rinkId": "kraken"
         },
         {
