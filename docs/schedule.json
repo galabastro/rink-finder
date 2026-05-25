@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-25T00:41:59.792Z",
+  "scrapedAt": "2026-05-25T05:33:37.470Z",
   "rinks": [
     {
       "id": "snoking",
@@ -88,9 +88,9 @@
           "endRaw": "10:45am",
           "location": "Renton",
           "price": 15,
-          "registered": 1,
+          "registered": 2,
           "capacity": 400,
-          "spotsRemaining": 399,
+          "spotsRemaining": 398,
           "rinkId": "snoking"
         },
         {
@@ -102,9 +102,9 @@
           "endRaw": "12:30pm",
           "location": "Renton",
           "price": 15,
-          "registered": 4,
+          "registered": 9,
           "capacity": 400,
-          "spotsRemaining": 396,
+          "spotsRemaining": 391,
           "rinkId": "snoking"
         },
         {
@@ -116,9 +116,9 @@
           "endRaw": "1:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 8,
+          "registered": 15,
           "capacity": 400,
-          "spotsRemaining": 392,
+          "spotsRemaining": 385,
           "rinkId": "snoking"
         },
         {
@@ -130,9 +130,9 @@
           "endRaw": "2:00pm",
           "location": "Renton",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
@@ -144,9 +144,9 @@
           "endRaw": "2:15pm",
           "location": "Snoqualmie",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
@@ -546,9 +546,9 @@
           "endRaw": "5:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 87,
-          "capacity": 300,
-          "spotsRemaining": 213,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "kraken"
         },
         {
