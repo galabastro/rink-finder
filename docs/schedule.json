@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-25T16:44:40.291Z",
+  "scrapedAt": "2026-05-25T20:31:32.302Z",
   "rinks": [
     {
       "id": "snoking",
@@ -17,9 +17,9 @@
           "endRaw": "10:45am",
           "location": "Renton",
           "price": 15,
-          "registered": 13,
-          "capacity": 400,
-          "spotsRemaining": 387,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "snoking"
         },
         {
@@ -31,9 +31,9 @@
           "endRaw": "12:30pm",
           "location": "Renton",
           "price": 15,
-          "registered": 8,
-          "capacity": 400,
-          "spotsRemaining": 392,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "snoking"
         },
         {
@@ -45,9 +45,9 @@
           "endRaw": "1:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 19,
+          "registered": 58,
           "capacity": 400,
-          "spotsRemaining": 381,
+          "spotsRemaining": 342,
           "rinkId": "snoking"
         },
         {
@@ -59,9 +59,9 @@
           "endRaw": "2:00pm",
           "location": "Renton",
           "price": 15,
-          "registered": 3,
+          "registered": 38,
           "capacity": 400,
-          "spotsRemaining": 397,
+          "spotsRemaining": 362,
           "rinkId": "snoking"
         },
         {
@@ -73,9 +73,9 @@
           "endRaw": "2:15pm",
           "location": "Snoqualmie",
           "price": 15,
-          "registered": 6,
+          "registered": 41,
           "capacity": 400,
-          "spotsRemaining": 394,
+          "spotsRemaining": 359,
           "rinkId": "snoking"
         },
         {
@@ -157,9 +157,9 @@
           "endRaw": "5:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 0,
+          "registered": 1,
           "capacity": 400,
-          "spotsRemaining": 400,
+          "spotsRemaining": 399,
           "rinkId": "snoking"
         },
         {
@@ -426,7 +426,8 @@
           "registered": 0,
           "capacity": 400,
           "spotsRemaining": 400,
-          "rinkId": "snoking"
+          "rinkId": "snoking",
+          "partyWarning": true
         },
         {
           "name": "Public Skate",
