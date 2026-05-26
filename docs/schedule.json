@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-26T09:11:09.691Z",
+  "scrapedAt": "2026-05-26T13:00:20.283Z",
   "rinks": [
     {
       "id": "snoking",
@@ -523,62 +523,6 @@
           "registered": 2,
           "capacity": 300,
           "spotsRemaining": 298,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Matinee (M-F only)",
-          "date": "May 29 2026",
-          "start": "May 29 2026 12:00pm",
-          "end": "May 29 2026 1:30pm",
-          "startRaw": "12:00pm",
-          "endRaw": "1:30pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": 0,
-          "capacity": 300,
-          "spotsRemaining": 300,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Weekday",
-          "date": "May 29 2026",
-          "start": "May 29 2026 3:15pm",
-          "end": "May 29 2026 5:00pm",
-          "startRaw": "3:15pm",
-          "endRaw": "5:00pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": 2,
-          "capacity": 300,
-          "spotsRemaining": 298,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Fridays",
-          "date": "May 29 2026",
-          "start": "May 29 2026 6:15pm",
-          "end": "May 29 2026 7:45pm",
-          "startRaw": "6:15pm",
-          "endRaw": "7:45pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": 1,
-          "capacity": 300,
-          "spotsRemaining": 299,
-          "rinkId": "kraken"
-        },
-        {
-          "name": "Public Skate Fridays",
-          "date": "May 29 2026",
-          "start": "May 29 2026 8:15pm",
-          "end": "May 29 2026 9:45pm",
-          "startRaw": "8:15pm",
-          "endRaw": "9:45pm",
-          "location": "Kraken Community Iceplex",
-          "price": 15.86,
-          "registered": 1,
-          "capacity": 300,
-          "spotsRemaining": 299,
           "rinkId": "kraken"
         },
         {
