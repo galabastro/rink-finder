@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-05-31T16:27:40.203Z",
+  "scrapedAt": "2026-05-31T20:25:44.304Z",
   "rinks": [
     {
       "id": "snoking",
@@ -17,9 +17,9 @@
           "endRaw": "2:00pm",
           "location": "Renton",
           "price": 15,
-          "registered": 10,
+          "registered": 38,
           "capacity": 400,
-          "spotsRemaining": 390,
+          "spotsRemaining": 362,
           "rinkId": "snoking",
           "partyWarning": true
         },
@@ -32,9 +32,9 @@
           "endRaw": "2:20pm",
           "location": "Snoqualmie",
           "price": 15,
-          "registered": 1,
+          "registered": 14,
           "capacity": 400,
-          "spotsRemaining": 399,
+          "spotsRemaining": 386,
           "rinkId": "snoking"
         },
         {
@@ -46,9 +46,9 @@
           "endRaw": "2:45pm",
           "location": "Kirkland",
           "price": 15,
-          "registered": 8,
+          "registered": 23,
           "capacity": 400,
-          "spotsRemaining": 392,
+          "spotsRemaining": 377,
           "rinkId": "snoking"
         },
         {
@@ -478,9 +478,9 @@
           "endRaw": "11:30am",
           "location": "Kraken Community Iceplex",
           "price": 10.85,
-          "registered": 28,
-          "capacity": 100,
-          "spotsRemaining": 72,
+          "registered": null,
+          "capacity": null,
+          "spotsRemaining": null,
           "rinkId": "kraken"
         },
         {
@@ -492,9 +492,9 @@
           "endRaw": "2:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 18,
+          "registered": 65,
           "capacity": 300,
-          "spotsRemaining": 282,
+          "spotsRemaining": 235,
           "rinkId": "kraken"
         },
         {
@@ -506,9 +506,9 @@
           "endRaw": "5:45pm",
           "location": "Kraken Community Iceplex",
           "price": 15.86,
-          "registered": 15,
+          "registered": 17,
           "capacity": 300,
-          "spotsRemaining": 285,
+          "spotsRemaining": 283,
           "rinkId": "kraken"
         },
         {
